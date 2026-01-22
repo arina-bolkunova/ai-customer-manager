@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+
+# Virtual environment
+ai-customer-manager_env/
+ai-customer-manager_env_clean/
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# Logs
+*.log
