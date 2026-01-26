@@ -11,78 +11,107 @@ model = genai.GenerativeModel("gemini-2.0-flash-exp")
 customers = {}
 
 
+def clean_name(name):
+    """Remove titles from name - CTO Jo → Jo"""
+    name_lower = name.lower().strip()
+    title_prefixes = ['cto', 'cfo', 'cio', 'vp', 'director', 'head', 'chief', 'mr', 'mrs', 'dr',
+                      'ms']
+
+    for prefix in title_prefixes:
+        if name_lower.startswith(prefix + ' '):
+            return name[len(prefix) + 1:].strip().title()
+
+    return name.title()
+
+
 def calculate_lead_score(raw_input):
-    """Intelligent lead scoring based on business signals"""
-    score = 80  # Base score
+    """Intelligent lead scoring - FIXED for gmail"""
+    score = 70  # Lower base score
 
     raw_lower = raw_input.lower()
 
-    # HIGH VALUE TITLES (+15-25 points)
-    exec_titles = ['cto', 'cfo', 'cio', 'vp', 'director', 'head', 'chief', 'president', 'founder',
-                   'owner']
-    senior_count = sum(1 for title in exec_titles if title in raw_lower)
-    if senior_count >= 2:
-        score += 25
-    elif senior_count == 1:
-        score += 15
+    # GMAIL = LOW PRIORITY (Lead only)
+    if '@gmail.com' in raw_lower:
+        return 70
 
-    # PREMIUM DOMAINS (+10-20 points)
-    premium_domains = ['enterprise', 'corp', 'inc', 'io', 'co', 'tech']
-    gmail_count = raw_lower.count('@gmail')
-    company_count = sum(1 for domain in premium_domains if domain in raw_lower)
-    if company_count > 0:
-        score += 15
-    elif gmail_count == 0:
-        score += 10  # Assume business email
+    # EXECUTIVE TITLES (+10-20 points)
+    exec_titles = ['cto', 'cfo', 'cio', 'vp', 'director', 'head', 'chief']
+    title_count = sum(1 for title in exec_titles if title in raw_lower)
+    score += title_count * 8
 
-    # BUY INTENT (+20 points)
-    buy_signals = ['ready to buy', 'want to purchase', 'need now', 'urgent', 'budget', 'approved']
-    intent_count = sum(1 for signal in buy_signals if signal in raw_lower)
-    score += intent_count * 10
-
-    # TIMELINE (+10-15 points)
-    timeline_signals = ['q1', 'q2', 'q3', 'q4', 'next month', 'this quarter']
-    if any(signal in raw_lower for signal in timeline_signals):
+    # PREMIUM DOMAINS (+12 points)
+    premium_signals = ['enterprise', 'corp', 'io', 'co', 'tech']
+    if any(domain in raw_lower for domain in premium_signals):
         score += 12
 
-    # BUDGET MENTIONS (+15 points)
-    if re.search(r'\$\s*\d+[kkm]?\b', raw_input, re.IGNORECASE):
-        score += 15
+    # BUY INTENT (+15 max)
+    buy_signals = ['ready to buy', 'need now', 'urgent', 'approved']
+    intent_count = sum(1 for signal in buy_signals if raw_lower in raw_lower)
+    score += intent_count * 8
 
-    # CAP score at 100
-    return min(score, 100)
+    # BUDGET (+12)
+    if re.search(r'\$\s*\d+[kKm]?\b', raw_input, re.IGNORECASE):
+        score += 12
+
+    # TIMELINE (+10)
+    timeline = ['q1', 'q2', 'q3', 'q4', 'next month']
+    if any(t in raw_lower for t in timeline):
+        score += 10
+
+    return min(score, 95)  # Cap at 95
 
 
 def get_category(score):
-    """Convert score to business category"""
-    if score >= 95:
+    if score >= 90:
         return "Platinum"
-    elif score >= 85:
+    elif score >= 80:
         return "Gold"
-    else:
-        return "Lead"
+    return "Lead"
 
 
 def extract_key_info(raw_input):
-    """Extract business-critical info"""
-    try:
-        extract_prompt = f"""From: "{raw_input}"
-Extract ONLY most business-critical info (buy signals, budget, timeline, project).
-Return short phrase or "N/A".
+    """Capture ALL critical business info - FIXED year detection"""
+    info_parts = []
+    raw_lower = raw_input.lower()
 
-Examples:
-"ready to buy" → "ready to buy"
-"Q2 $50K CRM" → "Q2 $50K CRM"
-"CTO urgent" → "urgent" """
+    # 1. TITLES (highest priority)
+    exec_titles = ['cto', 'cfo', 'cio', 'vp', 'director', 'head']
+    for title in exec_titles:
+        if title in raw_lower:
+            info_parts.append(title.upper())
+            break
 
-        extract_response = model.generate_content(extract_prompt)
-        key_info = extract_response.text.strip()
-        if key_info.startswith('```'): key_info = key_info[3:]
-        if key_info.endswith('```'): key_info = key_info[:-3:]
-        key_info = key_info.strip().replace('"', '').replace('\n', ' ')
-        return key_info if len(key_info) > 3 else "N/A"
-    except:
-        return "N/A"
+    # 2. BUDGET (euro + dollar)
+    euro_match = re.search(r'(\d+(?:,\d+)?[kKm]?)€', raw_input, re.I)
+    dollar_match = re.search(r'\$\s*(\d+(?:,\d+)?[kKm]?)', raw_input, re.I)
+    if euro_match:
+        info_parts.append(f"{euro_match.group(1)}€")
+    elif dollar_match:
+        info_parts.append(f"${dollar_match.group(1)}")
+
+    # 3. YEAR TIMELINE (2027, 2026, etc.)
+    year_match = re.search(r'\b(20[2-9]\d)\b', raw_input, re.I)  # 2020-2099
+    if year_match:
+        info_parts.append(f"{year_match.group(1)} timeline")
+
+    # 4. QUARTER TIMELINE
+    q_match = re.search(r'(q[1-4])', raw_input, re.I)
+    if q_match:
+        info_parts.append(q_match.group(1).upper())
+
+    # 5. INTENT - FIXED: Skip negatives
+    negative_intent = 'not ready to buy' in raw_lower or 'not interested' in raw_lower or "won't " \
+                                                                                          "buy" \
+                      in raw_lower
+
+    if not negative_intent:
+        intent_phrases = ['ready to buy', 'need now', 'urgent', 'approved']
+        for phrase in intent_phrases:
+            if phrase in raw_lower:
+                info_parts.append("HIGH INTENT")
+                break
+
+    return ' | '.join(info_parts) if info_parts else "N/A"
 
 
 def agent_respond(gemini_text, prompt):
@@ -98,36 +127,39 @@ def agent_respond(gemini_text, prompt):
         action = data.get("action", "add")
         name = data["name"]
 
+        # CLEAN NAME - Remove titles
+        clean_name_result = clean_name(name)
+        print(f"Raw name: '{name}' → Clean name: '{clean_name_result}'")
+
         if action == "delete":
             deleted_email = None
             for email, customer in customers.items():
-                if name.lower() in customer["name"].lower():
+                if clean_name_result.lower() in customer["name"].lower():
                     deleted_email = email
                     break
             if deleted_email:
                 del customers[deleted_email]
-                return f"Customer '{name}' deleted successfully."
-            return f"No customer found matching '{name}'."
+                return f"Customer '{clean_name_result}' deleted successfully."
+            return f"No customer found matching '{clean_name_result}'."
 
         else:  # add
             email = data["email"]
             if email in customers:
-                return f"Customer {name} already exists."
+                return f"Customer {clean_name_result} already exists."
 
-            # CALCULATE INTELLIGENT SCORE
             score = calculate_lead_score(prompt)
             category = get_category(score)
             key_info = extract_key_info(prompt)
 
             customers[email] = {
-                "name": name,
+                "name": clean_name_result,
                 "email": email,
                 "raw_input": prompt,
                 "key_info": key_info,
-                "score": score,  # NEW: 0-100 lead score
-                "category": category  # NEW: Lead/Gold/Platinum
+                "score": score,
+                "category": category
             }
-            return f"Customer {name} added (Score: {score}/{category})."
+            return f"Customer {clean_name_result} added ({score}/{category})."
 
     except Exception as e:
         print("PARSE ERROR:", e)
@@ -142,8 +174,20 @@ def index():
     response_text = ""
     if request.method == "POST":
         prompt = request.form["prompt"]
+        # FIXED: Better name extraction prompt
         gemini_prompt = f"""Analyze: "{prompt}"
-Return ONLY JSON: {{"action": "add|delete", "name": "...", "email": "..."}}"""
+
+CRITICAL: "name" = PERSONAL FIRST/LAST NAME ONLY
+Ignore ALL titles (CTO VP Director Mr Mrs Dr).
+
+Examples:
+"CTO jo jo@gmail.com" → {{"action":"add","name":"jo","email":"jo@gmail.com"}}
+"Add VP Sarah sarah@acme.com" → {{"action":"add","name":"Sarah","email":"sarah@acme.com"}}
+"Director Mike Q2 mike@corp.com" → {{"action":"add","name":"Mike","email":"mike@corp.com"}}
+"Delete John" → {{"action":"delete","name":"John"}}
+
+Return ONLY JSON:
+{{"action": "add|delete", "name": "PERSONAL NAME", "email": "email"}}"""
 
         gemini_response = model.generate_content(gemini_prompt)
         gemini_text = gemini_response.text
