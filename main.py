@@ -43,15 +43,180 @@ app = Flask(__name__)
 
 HTML_TEMPLATE = """
 <!doctype html>
-<title>AI Customer Demo</title>
-<h2>Enter a customer command:</h2>
-<form method=post>
-  <input type=text name=prompt style="width:400px">
-  <input type=submit value=Send>
-</form>
-<p>{{ response }}</p>
-<p>Current Customers: {{ customers }}</p>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>AI Customer Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    >
+
+    <style>
+      body {
+        background-color: #f5f7fb;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      .app-header {
+        background: linear-gradient(135deg, #1f3b68, #274b8a);
+        color: #fff;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+      .app-title {
+        font-size: 1.35rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      .app-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin: 0.2rem 0 0;
+      }
+      .content-wrapper {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .card {
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+      }
+      .card-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid #eef1f6;
+        border-radius: 0.75rem 0.75rem 0 0 !important;
+      }
+      .form-control:focus {
+        border-color: #274b8a;
+        box-shadow: 0 0 0 0.15rem rgba(39,75,138,0.15);
+      }
+      .btn-primary {
+        background-color: #274b8a;
+        border-color: #274b8a;
+      }
+      .btn-primary:hover {
+        background-color: #1f356f;
+        border-color: #1f356f;
+      }
+      .response-badge {
+        font-size: 0.9rem;
+      }
+      .table thead th {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom-width: 1px;
+      }
+      .table tbody td {
+        vertical-align: middle;
+        font-size: 0.9rem;
+      }
+      .empty-state {
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="app-title">AI Customer Manager</h1>
+          <p class="app-subtitle">Natural language customer capture for your CRM</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-wrapper">
+      <div class="row g-4">
+        <!-- Input card -->
+        <div class="col-12 col-lg-6">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h2 class="h6 mb-0">Customer command</h2>
+              <span class="badge bg-light text-dark text-uppercase response-badge">AI powered</span>
+            </div>
+            <div class="card-body">
+              <form method="post" class="mb-3">
+                <label for="prompt" class="form-label">Type what you would normally say</label>
+                <input
+                  type="text"
+                  id="prompt"
+                  name="prompt"
+                  class="form-control"
+                  placeholder="e.g. Add John Doe with john.doe@acme.com"
+                  autofocus
+                >
+                <div class="d-flex justify-content-end mt-3">
+                  <button type="submit" class="btn btn-primary px-4">
+                    Submit
+                  </button>
+                </div>
+              </form>
+
+              {% if response %}
+              <div class="alert alert-info mb-0" role="alert">
+                <strong>Result:</strong> {{ response }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Customers card -->
+        <div class="col-12 col-lg-6">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="h6 mb-0">Current customers</h2>
+            </div>
+            <div class="card-body">
+              {% if customers %}
+                <div class="table-responsive">
+                  <table class="table align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for email, c in customers.items() %}
+                      <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.email }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="empty-state mb-0">
+                  No customers added yet. Use the command box to add your first contact.
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap JS (optional but nice for future components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+  </body>
+</html>
 """
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
