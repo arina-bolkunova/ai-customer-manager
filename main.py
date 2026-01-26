@@ -47,7 +47,7 @@ def calculate_lead_score(raw_input):
     score += title_count * 8
 
     # PREMIUM DOMAINS (+12 points)
-    premium_signals = ['enterprise', 'corp', 'io', 'co', 'tech']
+    premium_signals = ['enterprise', 'corp', 'io', 'co', 'tech', 'ai']
     if any(domain in raw_lower for domain in premium_signals):
         score += 12
 

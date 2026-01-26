@@ -199,3 +199,47 @@ body .card-body img {
   background-color: #111827 !important;
   border-radius: 8px;
 }
+
+/* DARK INPUT BAR */
+.form-control, .form-select {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #1f2937 !important;
+  border-color: #6b7280 !important;
+  color: #f9fafb !important;
+  box-shadow: 0 0 0 0.15rem rgba(107, 114, 128, 0.3) !important;
+}
+
+.form-control::placeholder {
+  color: #9ca3af !important;
+}
+
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+  -webkit-box-fill: #1f2937 !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+.text-muted {
+  color: #d1d5db !important;
+}
+
+body.dark-mode .text-muted {
+  color: #d1d5db !important;
+}
+
+
+body.dark-mode p.text-muted {
+  color: #e5e7eb !important;
+}
+
+body.dark-mode .empty-state,
+body.dark-mode h5 {
+  color: #f9fafb !important;
+}
