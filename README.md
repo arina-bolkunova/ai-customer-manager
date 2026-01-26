@@ -2,12 +2,12 @@
 text
 # AI Customer Manager 
 ![dashboard](ai-customer-manager.png)
-** 
+*** 
 AI CRM that eliminates 4 hours daily SDR data entry.
 
 One sentence → Instant pipeline. Bulk E-mail.
 
-No forms. No typing. No spreadsheets. Natural language → Smart CRM. SDRs close deals, not data entry.**
+No forms. No typing. No spreadsheets. Natural language → Smart CRM. SDRs close deals, not data entry.***
 
 
 ##  Features
