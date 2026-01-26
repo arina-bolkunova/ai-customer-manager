@@ -243,3 +243,14 @@ body.dark-mode .empty-state,
 body.dark-mode h5 {
   color: #f9fafb !important;
 }
+
+.alert-success {
+  background-color: #166534 !important;
+  color: #f0fdf4 !important;
+  border-color: #15803d !important;
+}
+
+body .alert-success {
+  background-color: #166534 !important;
+  color: #f0fdf4 !important;
+}

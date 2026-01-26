@@ -228,8 +228,8 @@ def index():
         3. Ignore ALL titles (CTO VP Director)
 
         Examples:
-        "delona [elodna@gmail.tech] wants to buy" → {{"action":"add","name":"delona",
-        "email":"elodna@gmail.tech"}}
+        "John [johna@company.tech] wants to buy" → {{"action":"add","name":"John",
+        "email":"John@company.tech"}}
         "CTO jo [jo@acme.com]" → {{"action":"add","name":"jo","email":"jo@acme.com"}}
         "Add VP Sarah [sarah@acme.com]" → {{"action":"add","name":"Sarah","email":"sarah@acme.com"}}
 
