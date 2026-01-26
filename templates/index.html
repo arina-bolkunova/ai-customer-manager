@@ -40,7 +40,7 @@
                 id="prompt"
                 name="prompt"
                 class="form-control"
-                placeholder="e.g. Add John Doe john.doe@acme.com or Delete Sarah"
+                placeholder="e.g. Add CTO Sarah Q2 CRM eval $50K sarah@acme.com or Delete Sarah"
                 value="{{ request.form.prompt if request.form else '' }}"
                 autofocus
               >
@@ -58,11 +58,11 @@
         </div>
       </div>
 
-      <!-- Customers card - LARGER TABLE -->
+      <!-- Customers card - LARGER TABLE WITH KEY INFO -->
       <div class="col-12 col-lg-6">
         <div class="card h-100">
           <div class="card-header d-flex justify-content-between">
-            <h2 class="h6 mb-0">Current customers ({{ customers|length }})</h2>
+            <h2 class="h6 mb-0">Customers ({{ customers|length }})</h2>
             <a href="{{ url_for('static', filename='customers.csv') }}" class="btn btn-sm btn-outline-secondary">📊 Export</a>
           </div>
           <div class="card-body p-0 d-flex flex-column h-100">
@@ -74,6 +74,7 @@
                       <th scope="col">#</th>
                       <th scope="col">Name</th>
                       <th scope="col">Email</th>
+                      <th scope="col" style="max-width: 180px;">Key Info</th>
                       <th scope="col" style="max-width: 250px;">Raw Input</th>
                     </tr>
                   </thead>
@@ -83,6 +84,9 @@
                       <td>{{ loop.index }}</td>
                       <td>{{ c.name }}</td>
                       <td>{{ c.email }}</td>
+                      <td class="small fw-bold text-primary" style="max-width: 180px; word-break: break-word;" title="{{ c.key_info or '' }}">
+                        {{ (c.key_info or 'N/A')[:40] }}{% if c.key_info and c.key_info|length > 40 %}...{% endif %}
+                      </td>
                       <td class="small" style="max-width: 250px; word-break: break-word;" title="{{ c.raw_input or '' }}">
                         {{ (c.raw_input or 'N/A')[:80] }}...
                       </td>
