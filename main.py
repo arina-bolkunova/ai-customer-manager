@@ -134,8 +134,8 @@ def generate_pie_chart(customers):
     }
     color_list = [colors[label] for label in labels]
 
-    fig, ax = plt.subplots(figsize=(8, 6), facecolor='none')
-    ax.set_facecolor('none')
+    fig, ax = plt.subplots(figsize=(8, 6), facecolor='#111827')
+    ax.set_facecolor('#111827')
 
     wedges, texts, autotexts = ax.pie(sizes, autopct='%d%%',
                                       colors=color_list, startangle=90,
@@ -152,7 +152,7 @@ def generate_pie_chart(customers):
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', dpi=100,
-                transparent=True, facecolor='none', edgecolor='none')
+                facecolor='#111827', edgecolor='none')
     buf.seek(0)
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close(fig)

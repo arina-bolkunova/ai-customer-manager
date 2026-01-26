@@ -1,5 +1,6 @@
 body {
-  background-color: #f5f7fb;
+  background-color: #1f2937 ;
+  color: #f9fafb ;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   height: 100vh;
   margin: 0;
@@ -145,4 +146,56 @@ body.dark-mode .empty-state {
 .table tbody td {
   vertical-align: middle;
   font-size: 0.9rem;
+}
+
+/* PERMANENT DARK MODE - CONTAINERS & CARDS */
+body {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark containers/backgrounds */
+.content-wrapper {
+  background-color: #1f2937 !important;
+}
+
+.full-width-card {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
+}
+
+.card {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.card-header {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark table backgrounds */
+.table {
+  --bs-table-color: #f9fafb !important;
+  --bs-table-bg: #111827 !important;
+  --bs-table-border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.table thead th {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+  border-bottom-color: #374151 !important;
+}
+
+.bg-light {
+  background-color: #1f2937 !important;
+}
+
+/* PIE CHART - Dark friendly */
+body .card-body img {
+  background-color: #111827 !important;
+  border-radius: 8px;
 }
