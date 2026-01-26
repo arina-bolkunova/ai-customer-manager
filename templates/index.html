@@ -8,135 +8,172 @@
   <!-- Bootstrap 5 CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Custom CSS - FIXED PATH -->
+  <!-- Custom CSS -->
   <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
   <style>
-    .main-content { min-height: 80vh; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .app-wrapper {
+      min-height: 100vh;
+      padding: 0;
+      background-color: #f8f9fa; /* Plain grey */
+    }
+    .content-wrapper {
+      min-height: calc(100vh - 80px);
+      padding: 1rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
     .input-section { flex: 0 0 auto; }
-    .table-section { flex: 1 1 auto; min-height: 50vh; }
+    .dashboard-section { flex: 1; }
+    .full-width-card {
+      height: 100%;
+      box-shadow: 0 4px 6px -1px rgba(0, 0,0,0.1);
+    }
+    @media (min-width: 992px) {
+      .content-wrapper {
+        padding: 2rem;
+      }
+    }
   </style>
 </head>
-<body>
-  <header class="app-header">
-    <div class="d-flex justify-content-between align-items-center w-100">
-      <div>
-        <h1 class="app-title">AI Customer Manager</h1>
-        <p class="app-subtitle">Natural language customer capture for your CRM</p>
+<body class="app-wrapper">
+  <header class="app-header bg-white shadow-sm border-bottom">
+    <div class="container-fluid px-4">
+      <div class="d-flex justify-content-between align-items-center py-3">
+        <div>
+          <h1 class="app-title mb-1">AI Customer Manager</h1>
+          <p class="app-subtitle mb-0 text-muted">Natural language customer capture for your CRM</p>
+        </div>
+        <button id="themeToggle" class="btn btn-sm btn-outline-primary">🌙</button>
       </div>
-      <button id="themeToggle" class="btn btn-sm btn-outline-light">🌙</button>
     </div>
   </header>
 
-  <main class="content-wrapper d-flex flex-column p-3">
-    <!-- TOP: Input Section (Compact) -->
-    <div class="row g-3 input-section mb-4">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h2 class="h6 mb-0">Customer command</h2>
-            <span class="badge bg-light text-dark text-uppercase response-badge">AI powered</span>
-          </div>
-          <div class="card-body py-3">
-            <form method="post">
-              <div class="row g-3">
-                <div class="col-12 col-lg-8">
-                  <label for="prompt" class="form-label small">Type what you would normally say</label>
-                  <input
-                    type="text"
-                    id="prompt"
-                    name="prompt"
-                    class="form-control form-control-lg"
-                    placeholder="e.g. Add CTO Sarah Q2 CRM eval $50K sarah@acme.com"
-                    value="{{ request.form.prompt if request.form else '' }}"
-                    autofocus
-                  >
-                </div>
-                <div class="col-12 col-lg-4 d-flex align-items-end">
-                  <button type="submit" class="btn btn-primary px-4 w-100 h-100">Submit</button>
-                </div>
+  <main class="content-wrapper d-flex flex-column">
+    <!-- INPUT SECTION - Full width -->
+    <div class="input-section mb-4">
+      <div class="row g-0">
+        <div class="col-12">
+          <div class="card full-width-card">
+            <div class="card-header bg-primary text-white">
+              <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Customer command</h2>
+                <span class="badge bg-light text-dark text-uppercase">AI powered</span>
               </div>
+            </div>
+            <div class="card-body p-4">
+              <form method="post">
+                <div class="row g-3 align-items-end">
+                  <div class="col-12 col-lg-9">
+                    <label for="prompt" class="form-label fw-semibold">Type what you would normally say</label>
+                    <input
+                      type="text"
+                      id="prompt"
+                      name="prompt"
+                      class="form-control form-control-lg"
+                      placeholder="e.g. Add CTO Sarah Q2 CRM eval $50K sarah@acme.com"
+                      value="{{ request.form.prompt if request.form else '' }}"
+                      autofocus
+                    >
+                  </div>
+                  <div class="col-12 col-lg-3">
+                    <button type="submit" class="btn btn-primary w-100 py-3 fs-5">Submit</button>
+                  </div>
+                </div>
 
-              {% if response %}
-              <div class="alert alert-info mt-3 mb-0 small" role="alert">
-                <strong>Result:</strong> {{ response }}
-              </div>
-              {% endif %}
-            </form>
+                {% if response %}
+                <div class="alert alert-success mt-4 mb-0" role="alert">
+                  <strong>✅ Result:</strong> {{ response }}
+                </div>
+                {% endif %}
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="row g-4 flex-grow-1">
+    <!-- DASHBOARD - Pie + Table full width -->
+    <div class="row g-4 dashboard-section flex-grow-1">
       <!-- PIE CHART -->
-      <div class="col-md-6 col-lg-4">
+      <div class="col-lg-4">
         {% if pie_chart %}
-        <div class="card h-100">
-          <div class="card-header">
-            <h6 class="mb-0">Category Distribution</h6>
+        <div class="card full-width-card h-100">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0 fw-semibold">Category Distribution</h6>
           </div>
-          <div class="card-body text-center p-4 d-flex flex-column justify-content-center">
-            <img src="data:image/png;base64,{{ pie_chart }}" class="img-fluid mb-3" style="max-height: 280px;">
-            <p class="small text-muted mt-2 mb-0">{{ customers|length }} total leads</p>
+          <div class="card-body d-flex flex-column p-4 text-center">
+            <img src="data:image/png;base64,{{ pie_chart }}" class="img-fluid flex-grow-1 mb-3" style="max-height: 300px; border-radius: 8px;">
+            <div class="mt-auto">
+              <p class="h5 mb-1">{{ customers|length }} total leads</p>
+              <small class="text-muted">Platinum | Gold | Lead</small>
+            </div>
           </div>
         </div>
         {% else %}
-        <div class="card h-100">
-          <div class="card-body text-center p-5">
-            <div class="mb-3">
-              <svg width="64" height="64" fill="currentColor" class="text-muted mx-auto mb-3">
-                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="4"/>
-                <circle cx="32" cy="32" r="12" fill="currentColor"/>
+        <div class="card full-width-card h-100">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-5">
+            <div class="mb-4">
+              <svg width="80" height="80" fill="currentColor" class="text-muted">
+                <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
+                <circle cx="40" cy="40" r="16" fill="currentColor"/>
               </svg>
             </div>
-            <p class="text-muted mb-0">Add leads to see distribution</p>
+            <h5 class="mb-2">No leads yet</h5>
+            <p class="text-muted mb-0">Add your first customer to see analytics</p>
           </div>
         </div>
         {% endif %}
       </div>
 
-      <!-- MASSIVE TABLE SECTION -->
-      <div class="col-md-12 col-lg-8">
-        <div class="card h-100">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h2 class="h6 mb-0">Customers ({{ customers|length }})</h2>
-            <a href="{{ url_for('static', filename='customers.csv') }}" class="btn btn-sm btn-outline-secondary">📊 Export</a>
+      <!-- MASSIVE TABLE -->
+      <div class="col-lg-8">
+        <div class="card full-width-card h-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center border-bottom">
+            <h3 class="h6 mb-0 fw-semibold">Customer Pipeline ({{ customers|length }})</h3>
+            <a href="{{ url_for('static', filename='customers.csv') }}" class="btn btn-outline-primary btn-sm">
+              📊 Export CSV
+            </a>
           </div>
           <div class="card-body p-0 d-flex flex-column h-100">
             {% if customers %}
-              <div class="table-responsive flex-grow-1" style="height: 0;">
-                <table class="table table-hover align-middle mb-0 h-100">
+              <div class="table-responsive flex-grow-1">
+                <table class="table table-hover mb-0 h-100">
                   <thead class="table-light sticky-top">
                     <tr>
-                      <th scope="col" class="col-1">#</th>
-                      <th scope="col" class="col-2">Name</th>
-                      <th scope="col" class="col-2">Email</th>
-                      <th scope="col" class="col-1">Score</th>
-                      <th scope="col" class="col-1">Category</th>
-                      <th scope="col" class="col-2">Key Info</th>
-                      <th scope="col" class="col-3">Raw Input</th>
+                      <th class="col-1">#</th>
+                      <th class="col-2">Name</th>
+                      <th class="col-2">Email</th>
+                      <th class="col-1">Score</th>
+                      <th class="col-1">Category</th>
+                      <th class="col-2">Key Info</th>
+                      <th class="col-3">Raw Input</th>
                     </tr>
                   </thead>
                   <tbody class="table-group-divider">
                     {% for email, c in customers.items() %}
                     <tr>
-                      <td>{{ loop.index }}</td>
-                      <td>{{ c.name }}</td>
-                      <td class="text-break">{{ c.email }}</td>
+                      <td class="fw-semibold">{{ loop.index }}</td>
+                      <td class="fw-semibold">{{ c.name }}</td>
+                      <td>{{ c.email }}</td>
                       <td>
-                        <span class="badge bg-primary fs-6">{{ c.score }}</span>
+                        <span class="badge bg-primary">{{ c.score }}</span>
                       </td>
                       <td>
                         {% if c.category == 'Platinum' %}
-                          <span class="badge bg-warning text-dark fw-semibold">Platinum</span>
+                          <span class="badge fw-semibold px-3 py-2" style="background-color: #10D178; color: black;">Platinum</span>
                         {% elif c.category == 'Gold' %}
-                          <span class="badge bg-success fw-semibold">Gold</span>
+                          <span class="badge fw-semibold px-3 py-2" style="background-color: #FFD700; color: black;">Gold</span>
                         {% else %}
-                          <span class="badge bg-secondary fw-semibold">Lead</span>
+                          <span class="badge bg-secondary fw-semibold px-3 py-2">Lead</span>
                         {% endif %}
                       </td>
-                      <td class="fw-bold text-primary small" title="{{ c.key_info or '' }}">
+                      <td class="small fw-semibold text-primary" title="{{ c.key_info or '' }}">
                         {{ (c.key_info or 'N/A')[:35] }}{% if c.key_info and c.key_info|length > 35 %}...{% endif %}
                       </td>
                       <td class="small text-muted" title="{{ c.raw_input or '' }}">
@@ -148,15 +185,16 @@
                 </table>
               </div>
             {% else %}
-              <div class="flex-grow-1 d-flex align-items-center justify-content-center p-5">
+              <div class="flex-grow-1 d-flex align-items-center justify-content-center p-5 bg-light">
                 <div class="text-center">
-                  <div class="mb-3">
-                    <svg width="64" height="64" fill="currentColor" class="text-muted mx-auto mb-3">
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="4"/>
-                      <circle cx="32" cy="32" r="12" fill="currentColor"/>
+                  <div class="mb-4">
+                    <svg width="80" height="80" fill="currentColor" class="text-muted mx-auto mb-3">
+                      <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
+                      <circle cx="40" cy="40" r="16" fill="currentColor"/>
                     </svg>
                   </div>
-                  <p class="empty-state mb-0">No customers added yet. Use the command box above.</p>
+                  <h4 class="mb-2">No customers yet</h4>
+                  <p class="text-muted mb-0">Use the input above to add your first lead.</p>
                 </div>
               </div>
             {% endif %}

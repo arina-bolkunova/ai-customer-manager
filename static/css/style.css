@@ -63,7 +63,7 @@ body {
   color: #6b7280;
 }
 
-/* DARK MODE TABLE */
+
 body.dark-mode {
   background-color: #1f2937;
   color: #f9fafb;
@@ -101,10 +101,11 @@ body.dark-mode .card {
   color: #f9fafb;
 }
 
+
 body.dark-mode .card-header {
-  background-color: #4b5563;
-  border-color: #6b7280;
-  color: #f9fafb;
+  background-color: #374151 !important;
+  border-color: #4b5563;
+  color: #9ca3af !important;
 }
 
 body.dark-mode .empty-state {

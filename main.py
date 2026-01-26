@@ -123,7 +123,7 @@ def extract_key_info(raw_input):
 
 
 def generate_pie_chart(customers):
-    """Generate category distribution pie chart"""
+    """Pie chart - FIXED tkinter error"""
     if not customers:
         return None
 
@@ -131,24 +131,40 @@ def generate_pie_chart(customers):
     labels = list(category_counts.keys())
     sizes = list(category_counts.values())
 
-    colors = ['#6B7280', '#10B981', '#F59E0B']  # Lead(gray), Gold(green), Platinum(gold)
+    colors = {
+        'Lead': '#6B7280',
+        'Gold': '#FFD700',
+        'Platinum': '#10D178'
+    }
+    color_list = [colors[label] for label in labels]
 
-    fig, ax = plt.subplots(figsize=(6, 6))
-    wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%',
-                                      colors=colors[:len(labels)], startangle=90)
+    # ✅ FIX: Use Agg backend (no tkinter)
+    import matplotlib
+    matplotlib.use('Agg')  # Non-interactive backend [web:34]
+
+    fig, ax = plt.subplots(figsize=(8, 6), facecolor='none')
+    ax.set_facecolor('none')
+
+    wedges, texts, autotexts = ax.pie(sizes, autopct='%d%%',
+                                      colors=color_list, startangle=90,
+                                      textprops={'fontsize': 18, 'fontweight': 'bold'})
 
     for autotext in autotexts:
-        autotext.set_color('white')
+        autotext.set_color('black')
+        autotext.set_fontsize(22)
         autotext.set_fontweight('bold')
 
-    ax.set_title('Lead Categories', fontsize=16, fontweight='bold')
+    ax.set_title('Lead Categories', fontsize=16, fontweight='bold', pad=20, color='white')
+    ax.axis('equal')
     plt.tight_layout()
 
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100,
+                transparent=True, facecolor='none', edgecolor='none')
     buf.seek(0)
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close(fig)
+    plt.close(fig)  # ✅ Proper cleanup
+    plt.clf()  # ✅ Clear figure
 
     return img_base64
 
