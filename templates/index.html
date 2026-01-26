@@ -10,6 +10,12 @@
 
   <!-- Custom CSS - FIXED PATH -->
   <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+  <style>
+    .main-content { min-height: 80vh; }
+    .input-section { flex: 0 0 auto; }
+    .table-section { flex: 1 1 auto; min-height: 50vh; }
+  </style>
 </head>
 <body>
   <header class="app-header">
@@ -18,66 +24,71 @@
         <h1 class="app-title">AI Customer Manager</h1>
         <p class="app-subtitle">Natural language customer capture for your CRM</p>
       </div>
-      <!-- DARK MODE TOGGLE - RIGHT SIDE -->
       <button id="themeToggle" class="btn btn-sm btn-outline-light">🌙</button>
     </div>
   </header>
 
-  <main class="content-wrapper">
-    <div class="row g-4">
-      <!-- Input card -->
-      <div class="col-12 col-lg-6">
+  <main class="content-wrapper d-flex flex-column">
+    <!-- TOP: Input Section (Compact) -->
+    <div class="row g-3 input-section">
+      <div class="col-12">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h2 class="h6 mb-0">Customer command</h2>
             <span class="badge bg-light text-dark text-uppercase response-badge">AI powered</span>
           </div>
-          <div class="card-body">
-            <form method="post" class="mb-3">
-              <label for="prompt" class="form-label">Type what you would normally say</label>
-              <input
-                type="text"
-                id="prompt"
-                name="prompt"
-                class="form-control"
-                placeholder="e.g. Add CTO Sarah Q2 CRM eval $50K sarah@acme.com or Delete Sarah"
-                value="{{ request.form.prompt if request.form else '' }}"
-                autofocus
-              >
-              <div class="d-flex justify-content-end mt-3">
-                <button type="submit" class="btn btn-primary px-4">Submit</button>
+          <div class="card-body py-3">
+            <form method="post">
+              <div class="row g-3">
+                <div class="col-12 col-lg-8">
+                  <label for="prompt" class="form-label small">Type what you would normally say</label>
+                  <input
+                    type="text"
+                    id="prompt"
+                    name="prompt"
+                    class="form-control form-control-lg"
+                    placeholder="e.g. Add CTO Sarah Q2 CRM eval $50K sarah@acme.com"
+                    value="{{ request.form.prompt if request.form else '' }}"
+                    autofocus
+                  >
+                </div>
+                <div class="col-12 col-lg-4 d-flex align-items-end">
+                  <button type="submit" class="btn btn-primary px-4 w-100 h-100">Submit</button>
+                </div>
               </div>
-            </form>
 
-            {% if response %}
-            <div class="alert alert-info mb-0" role="alert">
-              <strong>Result:</strong> {{ response }}
-            </div>
-            {% endif %}
+              {% if response %}
+              <div class="alert alert-info mt-3 mb-0 small" role="alert">
+                <strong>Result:</strong> {{ response }}
+              </div>
+              {% endif %}
+            </form>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Customers card - FULL FEATURES -->
-      <div class="col-12 col-lg-6">
+    <!-- BOTTOM: MASSIVE TABLE SECTION -->
+    <div class="row g-3 table-section flex-grow-1 mt-3">
+      <div class="col-12">
         <div class="card h-100">
-          <div class="card-header d-flex justify-content-between">
+          <div class="card-header d-flex justify-content-between align-items-center">
             <h2 class="h6 mb-0">Customers ({{ customers|length }})</h2>
             <a href="{{ url_for('static', filename='customers.csv') }}" class="btn btn-sm btn-outline-secondary">📊 Export</a>
           </div>
           <div class="card-body p-0 d-flex flex-column h-100">
             {% if customers %}
-              <div class="table-responsive flex-grow-1">
-                <table class="table align-middle mb-0 h-100">
+              <div class="table-responsive flex-grow-1" style="height: 0;">
+                <table class="table table-hover align-middle mb-0 h-100">
                   <thead class="table-light sticky-top">
                     <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Name</th>
-                      <th scope="col">Email</th>
-                      <th scope="col">Score</th>
-                      <th scope="col">Category</th>
-                      <th scope="col" style="max-width: 160px;">Key Info</th>
-                      <th scope="col" style="max-width: 220px;">Raw Input</th>
+                      <th scope="col" class="col-1">#</th>
+                      <th scope="col" class="col-2">Name</th>
+                      <th scope="col" class="col-2">Email</th>
+                      <th scope="col" class="col-1">Score</th>
+                      <th scope="col" class="col-1">Category</th>
+                      <th scope="col" class="col-2">Key Info</th>
+                      <th scope="col" class="col-3">Raw Input</th>
                     </tr>
                   </thead>
                   <tbody class="table-group-divider">
@@ -85,7 +96,7 @@
                     <tr>
                       <td>{{ loop.index }}</td>
                       <td>{{ c.name }}</td>
-                      <td>{{ c.email }}</td>
+                      <td class="text-break">{{ c.email }}</td>
                       <td>
                         <span class="badge bg-primary fs-6">{{ c.score }}</span>
                       </td>
@@ -98,10 +109,10 @@
                           <span class="badge bg-secondary fw-semibold">Lead</span>
                         {% endif %}
                       </td>
-                      <td class="small fw-bold text-primary" style="max-width: 160px; word-break: break-word;" title="{{ c.key_info or '' }}">
+                      <td class="fw-bold text-primary small" title="{{ c.key_info or '' }}">
                         {{ (c.key_info or 'N/A')[:35] }}{% if c.key_info and c.key_info|length > 35 %}...{% endif %}
                       </td>
-                      <td class="small" style="max-width: 220px; word-break: break-word;" title="{{ c.raw_input or '' }}">
+                      <td class="small text-muted" title="{{ c.raw_input or '' }}">
                         {{ (c.raw_input or 'N/A')[:70] }}...
                       </td>
                     </tr>
@@ -110,10 +121,16 @@
                 </table>
               </div>
             {% else %}
-              <div class="flex-grow-1 d-flex align-items-center justify-content-center">
-                <p class="empty-state mb-0">
-                  No customers added yet. Use the command box to add your first contact.
-                </p>
+              <div class="flex-grow-1 d-flex align-items-center justify-content-center p-5">
+                <div class="text-center">
+                  <div class="mb-3">
+                    <svg width="64" height="64" fill="currentColor" class="text-muted mx-auto mb-3">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="4"/>
+                      <circle cx="32" cy="32" r="12" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <p class="empty-state mb-0">No customers added yet. Use the command box above.</p>
+                </div>
               </div>
             {% endif %}
           </div>
@@ -124,8 +141,6 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Custom JS -->
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

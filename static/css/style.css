@@ -63,18 +63,42 @@ body {
   color: #6b7280;
 }
 
-/* DARK MODE */
+/* DARK MODE TABLE */
 body.dark-mode {
   background-color: #1f2937;
   color: #f9fafb;
 }
 
-body.dark-mode .card,
-body.dark-mode .table,
-body.dark-mode .alert {
-  background-color: #374151;
+body.dark-mode .table {
+  --bs-table-color: #f9fafb;
+  --bs-table-bg: #374151;
+  --bs-table-border-color: #4b5563;
+}
+
+body.dark-mode .table thead th {
+  background-color: #4b5563;
+  border-bottom-color: #6b7280;
   color: #f9fafb;
+}
+
+body.dark-mode .table tbody tr {
+  background-color: #374151;
   border-color: #4b5563;
+}
+
+body.dark-mode .table tbody tr:hover {
+  background-color: #4b5563;
+}
+
+body.dark-mode .table-light {
+  background-color: #4b5563;
+  border-color: #6b7280;
+}
+
+body.dark-mode .card {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
 }
 
 body.dark-mode .card-header {
@@ -83,12 +107,12 @@ body.dark-mode .card-header {
   color: #f9fafb;
 }
 
-body.dark-mode .table-hover tbody tr:hover {
-  background-color: #4b5563;
-}
-
 body.dark-mode .empty-state {
   color: #d1d5db;
+}
+
+body.dark-mode .text-muted {
+  color: #9ca3af !important;
 }
 
 body.dark-mode .form-control {
@@ -97,8 +121,6 @@ body.dark-mode .form-control {
   color: #f9fafb;
 }
 
-body.dark-mode .form-control:focus {
-  background-color: #4b5563;
-  border-color: #60a5fa;
-  color: #f9fafb;
+body.dark-mode .form-control::placeholder {
+  color: #9ca3af;
 }
