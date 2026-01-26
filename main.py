@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, Response
 import google.generativeai as genai
 import json
 import os
@@ -9,7 +9,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import io
 import base64
+import csv
 from collections import Counter
+from io import StringIO
 
 api_key = os.getenv("API_KEY")
 genai.configure(api_key=api_key)
@@ -75,7 +77,6 @@ def get_category(score):
 
 
 def extract_key_info(raw_input):
-
     info_parts = []
     raw_lower = raw_input.lower()
 
@@ -241,7 +242,6 @@ def index():
         response_text = agent_respond(gemini_text, prompt)
 
     pie_chart = generate_pie_chart(customers)
-
     gold_platinum_count = len(
         [c for c in customers.values() if c['category'] in ['Gold', 'Platinum']])
 
@@ -250,6 +250,39 @@ def index():
                            customers=customers,
                            pie_chart=pie_chart,
                            gold_platinum_count=gold_platinum_count)
+
+
+@app.route('/download-customers')
+def download_customers():
+    """✅ Generate and download customers CSV"""
+    if not customers:
+        return "No customers to export", 404
+
+    output = StringIO()
+    writer = csv.writer(output)
+
+    # Header
+    writer.writerow(['Name', 'Email', 'Score', 'Category', 'Key Info', 'Raw Input'])
+
+    # Data rows
+    for email, customer in customers.items():
+        writer.writerow([
+            customer['name'],
+            customer['email'],
+            customer['score'],
+            customer['category'],
+            customer['key_info'] or 'N/A',
+            customer['raw_input'][:200]  # Truncate long inputs
+        ])
+
+    output.seek(0)
+
+    # Return as downloadable CSV
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-disposition': 'attachment; filename=customers.csv'}
+    )
 
 
 if __name__ == "__main__":
