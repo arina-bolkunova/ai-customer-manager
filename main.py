@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, Response
+from flask import Flask, request, render_template, Response, redirect
 import google.generativeai as genai
 import json
 import os
@@ -283,6 +283,35 @@ def download_customers():
         mimetype='text/csv',
         headers={'Content-disposition': 'attachment; filename=customers.csv'}
     )
+
+
+@app.route('/delete_customer/<email>')
+def delete_customer(email):
+    global customers
+    if email in customers:
+        del customers[email]
+    return redirect('/')
+
+
+@app.route('/edit_customer/<email>', methods=['GET', 'POST'])
+def edit_customer(email):
+    global customers
+    if request.method == 'POST':
+        if email in customers:
+            customers[email].update({
+                'name': request.form.get('name', customers[email]['name']),
+                'email': request.form.get('email', customers[email]['email']),
+                'score': int(request.form.get('score', customers[email]['score'])),
+                'category': request.form.get('category', customers[email]['category']),
+                'key_info': request.form.get('key_info', customers[email]['key_info'])
+            })
+        return redirect('/')
+
+    if email not in customers:
+        return redirect('/')
+
+    customer = customers[email]
+    return render_template('edit.html', customer=customer)
 
 
 if __name__ == "__main__":

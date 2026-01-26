@@ -119,36 +119,42 @@
                   </tr>
                 </thead>
                 <tbody class="table-group-divider">
-                  {% for email_key, c in customers.items() %}
-                  <tr>
-                    <td>
-                      <input type="checkbox" class="form-check-input lead-checkbox"
-                             data-email="{{ c.email }}"
-                             data-name="{{ c.name }}"
-                             data-category="{{ c.category }}"
-                             data-keyinfo="{{ c.key_info or '' }}">
-                    </td>
-                    <td class="fw-semibold">{{ c.name }}</td>
-                    <td>{{ c.email }}</td>
-                    <td><span class="badge bg-primary">{{ c.score }}</span></td>
-                    <td>
-                      {% if c.category == 'Platinum' %}
-                        <span class="badge fw-semibold px-3 py-2" style="background-color: #10D178; color: black;">Platinum</span>
-                      {% elif c.category == 'Gold' %}
-                        <span class="badge fw-semibold px-3 py-2" style="background-color: #FFD700; color: black;">Gold</span>
-                      {% else %}
-                        <span class="badge bg-secondary fw-semibold px-3 py-2">Lead</span>
-                      {% endif %}
-                    </td>
-                    <td class="small fw-semibold text-primary" title="{{ c.key_info or '' }}">
-                      {{ (c.key_info or 'N/A')[:35] }}{% if c.key_info and c.key_info|length > 35 %}...{% endif %}
-                    </td>
-                    <td class="small text-muted" title="{{ c.raw_input or '' }}">
-                      {{ (c.raw_input or 'N/A')[:70] }}...
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
+  {% for email_key, c in customers.items() %}
+  <tr>
+    <td>
+      <input type="checkbox" class="form-check-input lead-checkbox"
+             data-email="{{ c.email }}"
+             data-name="{{ c.name }}"
+             data-category="{{ c.category }}"
+             data-keyinfo="{{ c.key_info or '' }}">
+    </td>
+    <td class="fw-semibold">{{ c.name }}</td>
+    <td>{{ c.email }}</td>
+    <td><span class="badge bg-primary">{{ c.score }}</span></td>
+    <td>
+      {% if c.category == 'Platinum' %}
+        <span class="badge fw-semibold px-3 py-2" style="background-color: #10D178; color: black;">Platinum</span>
+      {% elif c.category == 'Gold' %}
+        <span class="badge fw-semibold px-3 py-2" style="background-color: #FFD700; color: black;">Gold</span>
+      {% else %}
+        <span class="badge bg-secondary fw-semibold px-3 py-2">Lead</span>
+      {% endif %}
+    </td>
+    <td class="small fw-semibold text-primary" title="{{ c.key_info or '' }}">
+      {{ (c.key_info or 'N/A')[:35] }}{% if c.key_info and c.key_info|length > 35 %}...{% endif %}
+    </td>
+    <td class="small text-muted" title="{{ c.raw_input or '' }}">
+      {{ (c.raw_input or 'N/A')[:70] }}...
+      <div class="btn-group btn-group-sm mt-1">
+        <a href="{{ url_for('edit_customer', email=c.email) }}" class="btn btn-outline-primary">Edit</a>
+        <a href="{{ url_for('delete_customer', email=c.email) }}" class="btn btn-outline-danger"
+           onclick="return confirm('Delete {{ c.name }}?')">Delete</a>
+      </div>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+
               </table>
             </div>
             {% else %}
