@@ -254,3 +254,24 @@ body .alert-success {
   background-color: #166534 !important;
   color: #f0fdf4 !important;
 }
+
+/* DARK SUCCESS/ERROR MESSAGES */
+.alert-success {
+  background-color: #166534 !important;
+  border-color: #15803d !important;
+  color: #f0fdf4 !important;
+}
+
+.alert {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+/* Ensure all response messages are dark */
+div[class*="alert"] {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+}

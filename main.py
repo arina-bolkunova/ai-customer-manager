@@ -87,31 +87,80 @@ def extract_key_info(raw_input):
         info_parts.append(q_match.group(1).upper())
     return ' | '.join(info_parts) if info_parts else "N/A"
 
+
 def generate_pie_chart(customers):
     if not customers:
         return None
+
     category_counts = Counter(c['category'] for c in customers.values())
     labels = list(category_counts.keys())
     sizes = list(category_counts.values())
-    colors = {'Lead': '#6B7280', 'Gold': '#FFD700', 'Platinum': '#10D178'}
+    total_leads = sum(sizes)
+
+    colors = {
+        'Lead': '#6B7280',
+        'Gold': '#FFD700',
+        'Platinum': '#10D178'
+    }
     color_list = [colors[label] for label in labels]
+
     fig, ax = plt.subplots(figsize=(8, 6), facecolor='#111827')
     ax.set_facecolor('#111827')
-    wedges, texts, autotexts = ax.pie(sizes, autopct='%d%%', colors=color_list, startangle=90, textprops={'fontsize': 18, 'fontweight': 'bold'})
-    for autotext in autotexts:
-        autotext.set_color('black')
-        autotext.set_fontsize(22)
-        autotext.set_fontweight('bold')
+
+    wedges, texts, autotexts = ax.pie(sizes,
+                                      autopct='%d%%',
+                                      colors=color_list,
+                                      startangle=90,
+                                      pctdistance=0.85,
+                                      textprops={'fontsize': 18, 'fontweight': 'bold',
+                                                 'color': 'black'})
+
+    # Donut center hole
+    centre_circle = plt.Circle((0, 0), 0.70, fc='#111827')
+    fig.gca().add_artist(centre_circle)
+
+    # Total leads in center
+    ax.text(0, 0, str(total_leads),
+            ha='center', va='center',
+            fontsize=28, fontweight='bold',
+            color='white')
+
     ax.set_title('Lead Categories', fontsize=16, fontweight='bold', pad=20, color='white')
     ax.axis('equal')
-    plt.tight_layout()
+
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100, facecolor='#111827', edgecolor='none')
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100,
+                facecolor='#111827', edgecolor='none')
     buf.seek(0)
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close(fig)
     plt.clf()
+
     return img_base64
+
+    # Add white center circle for donut effect
+    centre_circle = plt.Circle((0, 0), 0.70, fc='#111827', linewidth=0)
+    fig.gca().add_artist(centre_circle)
+
+    # Add total leads count in center
+    ax.text(0, 0, str(total_leads),
+            ha='center', va='center',
+            fontsize=28, fontweight='bold',
+            color='white')
+
+    ax.set_title('Lead Categories', fontsize=16, fontweight='bold', pad=20, color='white')
+    ax.axis('equal')
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100,
+                facecolor='#111827', edgecolor='none')
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    plt.clf()
+
+    return img_base64
+
 
 def agent_respond(gemini_text, prompt):
     try:
@@ -247,6 +296,12 @@ def edit_customer(email):
         return redirect('/')
     customer = customers[email]
     return render_template('edit.html', customer=customer)
+
+@app.route('/clear')
+def clear_all():
+    global customers
+    customers = {}
+    return redirect('/')
 
 if __name__ == "__main__":
     app.run(debug=True)
