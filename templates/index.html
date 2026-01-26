@@ -4,91 +4,48 @@
   <meta charset="utf-8">
   <title>AI Customer Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Bootstrap 5 CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Custom CSS -->
   <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    .app-wrapper {
-      min-height: 100vh;
-      padding: 0;
-      background-color: #f8f9fa; /* Plain grey */
-    }
-    .content-wrapper {
-      min-height: calc(100vh - 80px);
-      padding: 1rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .input-section { flex: 0 0 auto; }
-    .dashboard-section { flex: 1; }
-    .full-width-card {
-      height: 100%;
-      box-shadow: 0 4px 6px -1px rgba(0, 0,0,0.1);
-    }
-    @media (min-width: 992px) {
-      .content-wrapper {
-        padding: 2rem;
-      }
-    }
-  </style>
 </head>
 <body class="app-wrapper">
-  <header class="app-header bg-white shadow-sm border-bottom">
-    <div class="container-fluid px-4">
-      <div class="d-flex justify-content-between align-items-center py-3">
+  <header class="app-header">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
         <div>
-          <h1 class="app-title mb-1">AI Customer Manager</h1>
-          <p class="app-subtitle mb-0 text-muted">Natural language customer capture for your CRM</p>
+          <h1 class="app-title mb-0">AI Customer Manager</h1>
+          <p class="app-subtitle mb-0">Natural language customer capture for your CRM</p>
         </div>
-        <button id="themeToggle" class="btn btn-sm btn-outline-primary">🌙</button>
+        <button id="themeToggle" class="btn btn-sm btn-light">🌙</button>
       </div>
     </div>
   </header>
 
   <main class="content-wrapper d-flex flex-column">
-    <!-- INPUT SECTION - Full width -->
-    <div class="input-section mb-4">
-      <div class="row g-0">
+    <!-- INPUT SECTION -->
+    <div class="input-section">
+      <div class="row">
         <div class="col-12">
           <div class="card full-width-card">
-            <div class="card-header bg-primary text-white">
-              <div class="d-flex justify-content-between align-items-center">
-                <h2 class="h5 mb-0">Customer command</h2>
-                <span class="badge bg-light text-dark text-uppercase">AI powered</span>
-              </div>
+            <div class="card-header">
+              <h2 class="h5 mb-0">Customer command</h2>
+              <span class="badge bg-primary text-uppercase">AI powered</span>
             </div>
             <div class="card-body p-4">
               <form method="post">
                 <div class="row g-3 align-items-end">
-                  <div class="col-12 col-lg-9">
+                  <div class="col-lg-9">
                     <label for="prompt" class="form-label fw-semibold">Type what you would normally say</label>
-                    <input
-                      type="text"
-                      id="prompt"
-                      name="prompt"
-                      class="form-control form-control-lg"
-                      placeholder="e.g. Add CTO Sarah Q2 CRM eval $50K sarah@acme.com"
-                      value="{{ request.form.prompt if request.form else '' }}"
-                      autofocus
-                    >
+                    <input type="text" id="prompt" name="prompt" class="form-control form-control-lg"
+                      placeholder="e.g. delona [elodna@gmail.tech] wants to buy"
+                      value="{{ request.form.prompt if request.form else '' }}" autofocus>
                   </div>
-                  <div class="col-12 col-lg-3">
+                  <div class="col-lg-3">
                     <button type="submit" class="btn btn-primary w-100 py-3 fs-5">Submit</button>
                   </div>
                 </div>
-
                 {% if response %}
-                <div class="alert alert-success mt-4 mb-0" role="alert">
-                  <strong>✅ Result:</strong> {{ response }}
+                <div class="alert alert-success mt-4 mb-0">
+                  <strong>✅ {{ response }}</strong>
                 </div>
                 {% endif %}
               </form>
@@ -98,13 +55,13 @@
       </div>
     </div>
 
-    <!-- DASHBOARD - Pie + Table full width -->
+    <!-- DASHBOARD -->
     <div class="row g-4 dashboard-section flex-grow-1">
       <!-- PIE CHART -->
       <div class="col-lg-4">
         {% if pie_chart %}
         <div class="card full-width-card h-100">
-          <div class="card-header bg-light border-bottom">
+          <div class="card-header">
             <h6 class="mb-0 fw-semibold">Category Distribution</h6>
           </div>
           <div class="card-body d-flex flex-column p-4 text-center">
@@ -119,7 +76,7 @@
         <div class="card full-width-card h-100">
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-5">
             <div class="mb-4">
-              <svg width="80" height="80" fill="currentColor" class="text-muted">
+              <svg width="80" height="80" fill="currentColor" class="text-muted mb-3">
                 <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
                 <circle cx="40" cy="40" r="16" fill="currentColor"/>
               </svg>
@@ -131,72 +88,84 @@
         {% endif %}
       </div>
 
-      <!-- MASSIVE TABLE -->
+      <!-- TABLE WITH BULK ACTIONS -->
       <div class="col-lg-8">
         <div class="card full-width-card h-100">
-          <div class="card-header bg-light d-flex justify-content-between align-items-center border-bottom">
+          <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="h6 mb-0 fw-semibold">Customer Pipeline ({{ customers|length }})</h3>
-            <a href="{{ url_for('static', filename='customers.csv') }}" class="btn btn-outline-primary btn-sm">
-              📊 Export CSV
-            </a>
+            <div class="d-flex gap-2">
+              <button id="emailGoldPlatinum" class="btn btn-success btn-sm">
+                📧 Email Gold/Platinum ({{ gold_platinum_count|default(0) }})
+              </button>
+              <button id="emailSelected" class="btn btn-primary btn-sm">
+                📧 Email Selected
+              </button>
+              <a href="{{ url_for('static', filename='customers.csv') }}" class="btn btn-outline-secondary btn-sm">
+                📊 Export CSV
+              </a>
+            </div>
           </div>
           <div class="card-body p-0 d-flex flex-column h-100">
             {% if customers %}
-              <div class="table-responsive flex-grow-1">
-                <table class="table table-hover mb-0 h-100">
-                  <thead class="table-light sticky-top">
-                    <tr>
-                      <th class="col-1">#</th>
-                      <th class="col-2">Name</th>
-                      <th class="col-2">Email</th>
-                      <th class="col-1">Score</th>
-                      <th class="col-1">Category</th>
-                      <th class="col-2">Key Info</th>
-                      <th class="col-3">Raw Input</th>
-                    </tr>
-                  </thead>
-                  <tbody class="table-group-divider">
-                    {% for email, c in customers.items() %}
-                    <tr>
-                      <td class="fw-semibold">{{ loop.index }}</td>
-                      <td class="fw-semibold">{{ c.name }}</td>
-                      <td>{{ c.email }}</td>
-                      <td>
-                        <span class="badge bg-primary">{{ c.score }}</span>
-                      </td>
-                      <td>
-                        {% if c.category == 'Platinum' %}
-                          <span class="badge fw-semibold px-3 py-2" style="background-color: #10D178; color: black;">Platinum</span>
-                        {% elif c.category == 'Gold' %}
-                          <span class="badge fw-semibold px-3 py-2" style="background-color: #FFD700; color: black;">Gold</span>
-                        {% else %}
-                          <span class="badge bg-secondary fw-semibold px-3 py-2">Lead</span>
-                        {% endif %}
-                      </td>
-                      <td class="small fw-semibold text-primary" title="{{ c.key_info or '' }}">
-                        {{ (c.key_info or 'N/A')[:35] }}{% if c.key_info and c.key_info|length > 35 %}...{% endif %}
-                      </td>
-                      <td class="small text-muted" title="{{ c.raw_input or '' }}">
-                        {{ (c.raw_input or 'N/A')[:70] }}...
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
+            <div class="table-responsive flex-grow-1">
+              <table class="table table-hover mb-0">
+                <thead class="table-light sticky-top">
+                  <tr>
+                    <th class="col-1">
+                      <input type="checkbox" id="selectAll" class="form-check-input">
+                    </th>
+                    <th class="col-2">Name</th>
+                    <th class="col-2">Email</th>
+                    <th class="col-1">Score</th>
+                    <th class="col-1">Category</th>
+                    <th class="col-2">Key Info</th>
+                    <th class="col-3">Raw Input</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                  {% for email_key, c in customers.items() %}
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="form-check-input lead-checkbox"
+                             data-email="{{ c.email }}"
+                             data-name="{{ c.name }}"
+                             data-category="{{ c.category }}"
+                             data-keyinfo="{{ c.key_info or '' }}">
+                    </td>
+                    <td class="fw-semibold">{{ c.name }}</td>
+                    <td>{{ c.email }}</td>
+                    <td><span class="badge bg-primary">{{ c.score }}</span></td>
+                    <td>
+                      {% if c.category == 'Platinum' %}
+                        <span class="badge fw-semibold px-3 py-2" style="background-color: #10D178; color: black;">Platinum</span>
+                      {% elif c.category == 'Gold' %}
+                        <span class="badge fw-semibold px-3 py-2" style="background-color: #FFD700; color: black;">Gold</span>
+                      {% else %}
+                        <span class="badge bg-secondary fw-semibold px-3 py-2">Lead</span>
+                      {% endif %}
+                    </td>
+                    <td class="small fw-semibold text-primary" title="{{ c.key_info or '' }}">
+                      {{ (c.key_info or 'N/A')[:35] }}{% if c.key_info and c.key_info|length > 35 %}...{% endif %}
+                    </td>
+                    <td class="small text-muted" title="{{ c.raw_input or '' }}">
+                      {{ (c.raw_input or 'N/A')[:70] }}...
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
             {% else %}
-              <div class="flex-grow-1 d-flex align-items-center justify-content-center p-5 bg-light">
-                <div class="text-center">
-                  <div class="mb-4">
-                    <svg width="80" height="80" fill="currentColor" class="text-muted mx-auto mb-3">
-                      <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
-                      <circle cx="40" cy="40" r="16" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <h4 class="mb-2">No customers yet</h4>
-                  <p class="text-muted mb-0">Use the input above to add your first lead.</p>
-                </div>
+            <div class="flex-grow-1 d-flex align-items-center justify-content-center p-5 bg-light">
+              <div class="text-center">
+                <svg width="80" height="80" fill="currentColor" class="text-muted mx-auto mb-3">
+                  <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
+                  <circle cx="40" cy="40" r="16" fill="currentColor"/>
+                </svg>
+                <h4 class="mb-2">No customers yet</h4>
+                <p class="text-muted mb-0">Use the input above to add your first lead.</p>
               </div>
+            </div>
             {% endif %}
           </div>
         </div>
@@ -204,7 +173,6 @@
     </div>
   </main>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>

@@ -1,49 +1,89 @@
-// AI Customer Manager - Interactive Features
 document.addEventListener('DOMContentLoaded', function() {
-  // Auto-focus input
-  const promptInput = document.getElementById('prompt');
-  if (promptInput) {
-    promptInput.focus();
-  }
-
-  // Form submission feedback
-  const form = document.querySelector('form');
-  if (form) {
-    form.addEventListener('submit', function() {
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = 'Processing...';
-      submitBtn.disabled = true;
-
-      // Re-enable after 3 seconds (form will reload anyway)
-      setTimeout(() => {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-      }, 3000);
+  // Dark mode toggle
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     });
   }
-});
 
-// Dark mode toggle
-document.addEventListener('DOMContentLoaded', function() {
-  const themeToggle = document.getElementById('themeToggle');
-  const body = document.body;
+  // Bulk email functionality
+  const selectAll = document.getElementById('selectAll');
+  const checkboxes = document.querySelectorAll('.lead-checkbox');
+  const emailGoldPlatinum = document.getElementById('emailGoldPlatinum');
+  const emailSelected = document.getElementById('emailSelected');
 
-  // Check for saved theme
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    body.classList.add('dark-mode');
-    themeToggle.textContent = '☀️';
+  // Select all checkbox
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      checkboxes.forEach(cb => cb.checked = this.checked);
+    });
   }
 
-  themeToggle.addEventListener('click', function() {
-    body.classList.toggle('dark-mode');
+  // Email Gold/Platinum only
+  if (emailGoldPlatinum) {
+    emailGoldPlatinum.addEventListener('click', function() {
+      const goldPlatinum = Array.from(checkboxes).filter(cb =>
+        cb.dataset.category === 'Gold' || cb.dataset.category === 'Platinum'
+      );
+      sendBulkEmail(goldPlatinum, 'Gold/Platinum');
+    });
+  }
 
-    if (body.classList.contains('dark-mode')) {
-      localStorage.setItem('darkMode', 'enabled');
-      themeToggle.textContent = '☀️';
-    } else {
-      localStorage.removeItem('darkMode');
-      themeToggle.textContent = '🌙';
+  // Email selected leads
+  if (emailSelected) {
+    emailSelected.addEventListener('click', function() {
+      const selected = Array.from(checkboxes).filter(cb => cb.checked);
+      if (selected.length === 0) {
+        alert('Please select leads first!');
+        return;
+      }
+      sendBulkEmail(selected, 'selected');
+    });
+  }
+
+  function sendBulkEmail(leads, type) {
+    if (leads.length === 0) {
+      alert('No ' + type + ' leads found!');
+      return;
     }
-  });
+
+    leads.forEach((lead, index) => {
+      const name = lead.dataset.name;
+      const email = lead.dataset.email;
+      const category = lead.dataset.category;
+      const keyInfo = lead.dataset.keyinfo || '';
+
+      // ✅ DIRECT GMAIL COMPOSE LINKS (Chrome-friendly)
+      const subject = `Quick chat about your ${category.toLowerCase()} opportunity?`;
+      const body = `Hi ${name},
+
+Saw you're a ${category} lead${keyInfo ? ' with ' + keyInfo.toLowerCase() : ''}.
+
+Would love to discuss:
+• Your timeline & budget needs
+• CRM evaluation
+• Next steps
+
+Best regards,
+Your Name
+
+---
+Lead added via AI Customer Manager`;
+
+      // Gmail compose URL - opens PERFECTLY in Chrome tabs
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      // Staggered opening (prevents browser blocking)
+      setTimeout(() => {
+        window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+      }, index * 600); // 0.6s delay between tabs
+    });
+
+    // Confirmation after all tabs opened
+    setTimeout(() => {
+      alert(`✅ Opened ${leads.length} Gmail compose tabs for ${type.toLowerCase()} leads!\n\nEach tab is pre-filled and ready to send.`);
+    }, leads.length * 600 + 200);
+  }
 });

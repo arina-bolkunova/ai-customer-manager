@@ -1,72 +1,94 @@
 body {
   background-color: #f5f7fb;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  height: 100vh;
+  margin: 0;
 }
+
+.app-wrapper {
+  min-height: 100vh;
+  padding: 0;
+}
+
 .app-header {
   background: linear-gradient(135deg, #1f3b68, #274b8a);
   color: #fff;
   padding: 1rem 2rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
+
 .app-title {
   font-size: 1.35rem;
   font-weight: 600;
   margin: 0;
 }
+
 .app-subtitle {
   font-size: 0.9rem;
   opacity: 0.8;
   margin: 0.2rem 0 0;
 }
+
 .content-wrapper {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 120px);
 }
-.card {
+
+.input-section {
+  flex: 0 0 auto;
+  margin-bottom: 2rem;
+}
+
+.dashboard-section {
+  flex: 1;
+}
+
+.full-width-card {
+  height: 100%;
   border-radius: 0.75rem;
   border: none;
   box-shadow: 0 8px 20px rgba(15,23,42,0.06);
 }
+
 .card-header {
   background-color: #ffffff;
   border-bottom: 1px solid #eef1f6;
   border-radius: 0.75rem 0.75rem 0 0 !important;
 }
+
 .form-control:focus {
   border-color: #274b8a;
   box-shadow: 0 0 0 0.15rem rgba(39,75,138,0.15);
 }
+
 .btn-primary {
   background-color: #274b8a;
   border-color: #274b8a;
 }
+
 .btn-primary:hover {
   background-color: #1f356f;
   border-color: #1f356f;
 }
-.response-badge {
-  font-size: 0.9rem;
-}
-.table thead th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-bottom-width: 1px;
-}
-.table tbody td {
-  vertical-align: middle;
-  font-size: 0.9rem;
-}
-.empty-state {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
 
-
+/* DARK MODE */
 body.dark-mode {
   background-color: #1f2937;
   color: #f9fafb;
+}
+
+body.dark-mode .card {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+body.dark-mode .card-header {
+  background-color: #374151 !important;
+  border-color: #4b5563;
+  color: #9ca3af !important;
 }
 
 body.dark-mode .table {
@@ -95,27 +117,6 @@ body.dark-mode .table-light {
   border-color: #6b7280;
 }
 
-body.dark-mode .card {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #f9fafb;
-}
-
-
-body.dark-mode .card-header {
-  background-color: #374151 !important;
-  border-color: #4b5563;
-  color: #9ca3af !important;
-}
-
-body.dark-mode .empty-state {
-  color: #d1d5db;
-}
-
-body.dark-mode .text-muted {
-  color: #9ca3af !important;
-}
-
 body.dark-mode .form-control {
   background-color: #4b5563;
   border-color: #6b7280;
@@ -124,4 +125,24 @@ body.dark-mode .form-control {
 
 body.dark-mode .form-control::placeholder {
   color: #9ca3af;
+}
+
+body.dark-mode .text-muted {
+  color: #9ca3af !important;
+}
+
+body.dark-mode .empty-state {
+  color: #d1d5db;
+}
+
+.table thead th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom-width: 1px;
+}
+
+.table tbody td {
+  vertical-align: middle;
+  font-size: 0.9rem;
 }

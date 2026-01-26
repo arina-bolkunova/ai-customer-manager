@@ -3,6 +3,9 @@ import google.generativeai as genai
 import json
 import os
 import re
+import matplotlib
+
+matplotlib.use('Agg')  # Fix tkinter error - at top!
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -16,7 +19,6 @@ customers = {}
 
 
 def clean_name(name):
-    """Remove titles from name - CTO Jo → Jo"""
     name_lower = name.lower().strip()
     title_prefixes = ['cto', 'cfo', 'cio', 'vp', 'director', 'head', 'chief', 'mr', 'mrs', 'dr',
                       'ms']
@@ -29,7 +31,6 @@ def clean_name(name):
 
 
 def calculate_lead_score(raw_input):
-    """Intelligent lead scoring - FIXED for gmail"""
     score = 70
 
     raw_lower = raw_input.lower()
@@ -74,18 +75,18 @@ def get_category(score):
 
 
 def extract_key_info(raw_input):
-    """Capture ALL critical business info - FIXED budget detection"""
+    """Capture business intel - FIXED buy intent"""
     info_parts = []
     raw_lower = raw_input.lower()
 
-    # 1. TITLES
+    # 1. TITLES (unchanged)
     exec_titles = ['cto', 'cfo', 'cio', 'vp', 'director', 'head']
     for title in exec_titles:
         if title in raw_lower:
             info_parts.append(title.upper())
             break
 
-    # 2. BUDGET - FIXED (standalone "100k budget" works)
+    # 2. BUDGET (unchanged)
     euro_match = re.search(r'(\d+(?:,\d+)?[kKm]?)€?', raw_input, re.I)
     dollar_match = re.search(r'\$\s*(\d+(?:,\d+)?[kKm]?)', raw_input, re.I)
     standalone_budget = re.search(r'\b(\d+(?:,\d+)?[kKm]?)\s*budget\b', raw_input, re.I)
@@ -97,33 +98,31 @@ def extract_key_info(raw_input):
     elif standalone_budget:
         info_parts.append(f"{standalone_budget.group(1)}k budget")
 
-    # 3. YEAR TIMELINE
+    # 3. ✅ FIXED: BUY INTENT (more phrases)
+    buy_phrases = ['wants to buy', 'ready to buy', 'need now', 'urgent', 'approved', 'looking for',
+                   'interested in']
+    negative_intent = any(
+        phrase in raw_lower for phrase in ['not ready', 'not interested', "won't buy"])
+
+    if not negative_intent:
+        for phrase in buy_phrases:
+            if phrase in raw_lower:
+                info_parts.append("HIGH INTENT")
+                break
+
+    # 4. TIMELINE (unchanged)
     year_match = re.search(r'\b(20[2-9]\d)\b', raw_input, re.I)
     if year_match:
         info_parts.append(f"{year_match.group(1)} timeline")
 
-    # 4. QUARTER TIMELINE
     q_match = re.search(r'(q[1-4])', raw_input, re.I)
     if q_match:
         info_parts.append(q_match.group(1).upper())
-
-    # 5. INTENT - Skip negatives
-    negative_intent = 'not ready to buy' in raw_lower or 'not interested' in raw_lower or "won't " \
-                                                                                          "buy" \
-                      in raw_lower
-
-    if not negative_intent:
-        intent_phrases = ['ready to buy', 'need now', 'urgent', 'approved']
-        for phrase in intent_phrases:
-            if phrase in raw_lower:
-                info_parts.append("HIGH INTENT")
-                break
 
     return ' | '.join(info_parts) if info_parts else "N/A"
 
 
 def generate_pie_chart(customers):
-    """Pie chart - FIXED tkinter error"""
     if not customers:
         return None
 
@@ -137,10 +136,6 @@ def generate_pie_chart(customers):
         'Platinum': '#10D178'
     }
     color_list = [colors[label] for label in labels]
-
-    # ✅ FIX: Use Agg backend (no tkinter)
-    import matplotlib
-    matplotlib.use('Agg')  # Non-interactive backend [web:34]
 
     fig, ax = plt.subplots(figsize=(8, 6), facecolor='none')
     ax.set_facecolor('none')
@@ -163,8 +158,8 @@ def generate_pie_chart(customers):
                 transparent=True, facecolor='none', edgecolor='none')
     buf.seek(0)
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close(fig)  # ✅ Proper cleanup
-    plt.clf()  # ✅ Clear figure
+    plt.close(fig)
+    plt.clf()
 
     return img_base64
 
@@ -230,16 +225,19 @@ def index():
         prompt = request.form["prompt"]
         gemini_prompt = f"""Analyze: "{prompt}"
 
-CRITICAL: "name" = PERSONAL FIRST/LAST NAME ONLY
-Ignore ALL titles (CTO VP Director Mr Mrs Dr).
+        CRITICAL RULES:
+        1. "name" = FIRST WORD BEFORE EMAIL (ignore brackets)
+        2. Extract email from mailto: links OR plain emails
+        3. Ignore ALL titles (CTO VP Director)
 
-Examples:
-"CTO jo jo@gmail.com" → {{"action":"add","name":"jo","email":"jo@gmail.com"}}
-"Add VP Sarah sarah@acme.com" → {{"action":"add","name":"Sarah","email":"sarah@acme.com"}}
-"Delete John" → {{"action":"delete","name":"John"}}
+        Examples:
+        "delona [elodna@gmail.tech] wants to buy" → {{"action":"add","name":"delona",
+        "email":"elodna@gmail.tech"}}
+        "CTO jo [jo@acme.com]" → {{"action":"add","name":"jo","email":"jo@acme.com"}}
+        "Add VP Sarah [sarah@acme.com]" → {{"action":"add","name":"Sarah","email":"sarah@acme.com"}}
 
-Return ONLY JSON:
-{{"action": "add|delete", "name": "PERSONAL NAME", "email": "email"}}"""
+        Return ONLY JSON:
+        {{"action": "add|delete", "name": "FIRST NAME", "email": "email@gmail.com"}}"""
 
         gemini_response = model.generate_content(gemini_prompt)
         gemini_text = gemini_response.text
@@ -248,10 +246,15 @@ Return ONLY JSON:
 
     pie_chart = generate_pie_chart(customers)
 
+    # ✅ BULK EMAIL SUPPORT - Count Gold/Platinum leads
+    gold_platinum_count = len(
+        [c for c in customers.values() if c['category'] in ['Gold', 'Platinum']])
+
     return render_template("index.html",
                            response=response_text,
                            customers=customers,
-                           pie_chart=pie_chart)
+                           pie_chart=pie_chart,
+                           gold_platinum_count=gold_platinum_count)
 
 
 if __name__ == "__main__":
