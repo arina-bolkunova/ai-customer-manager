@@ -58,39 +58,45 @@
         </div>
       </div>
 
-      <!-- Customers card -->
+      <!-- Customers card - LARGER TABLE -->
       <div class="col-12 col-lg-6">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-header d-flex justify-content-between">
             <h2 class="h6 mb-0">Current customers ({{ customers|length }})</h2>
             <a href="{{ url_for('static', filename='customers.csv') }}" class="btn btn-sm btn-outline-secondary">📊 Export</a>
           </div>
-          <div class="card-body">
+          <div class="card-body p-0 d-flex flex-column h-100">
             {% if customers %}
-              <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                  <thead>
+              <div class="table-responsive flex-grow-1">
+                <table class="table align-middle mb-0 h-100">
+                  <thead class="table-light sticky-top">
                     <tr>
                       <th scope="col">#</th>
                       <th scope="col">Name</th>
                       <th scope="col">Email</th>
+                      <th scope="col" style="max-width: 250px;">Raw Input</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="table-group-divider">
                     {% for email, c in customers.items() %}
                     <tr>
                       <td>{{ loop.index }}</td>
                       <td>{{ c.name }}</td>
                       <td>{{ c.email }}</td>
+                      <td class="small" style="max-width: 250px; word-break: break-word;" title="{{ c.raw_input or '' }}">
+                        {{ (c.raw_input or 'N/A')[:80] }}...
+                      </td>
                     </tr>
                     {% endfor %}
                   </tbody>
                 </table>
               </div>
             {% else %}
-              <p class="empty-state mb-0">
-                No customers added yet. Use the command box to add your first contact.
-              </p>
+              <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                <p class="empty-state mb-0">
+                  No customers added yet. Use the command box to add your first contact.
+                </p>
+              </div>
             {% endif %}
           </div>
         </div>
