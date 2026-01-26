@@ -63,3 +63,42 @@ body {
   color: #6b7280;
 }
 
+/* DARK MODE */
+body.dark-mode {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+body.dark-mode .card,
+body.dark-mode .table,
+body.dark-mode .alert {
+  background-color: #374151;
+  color: #f9fafb;
+  border-color: #4b5563;
+}
+
+body.dark-mode .card-header {
+  background-color: #4b5563;
+  border-color: #6b7280;
+  color: #f9fafb;
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+  background-color: #4b5563;
+}
+
+body.dark-mode .empty-state {
+  color: #d1d5db;
+}
+
+body.dark-mode .form-control {
+  background-color: #4b5563;
+  border-color: #6b7280;
+  color: #f9fafb;
+}
+
+body.dark-mode .form-control:focus {
+  background-color: #4b5563;
+  border-color: #60a5fa;
+  color: #f9fafb;
+}
