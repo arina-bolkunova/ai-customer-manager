@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const category = lead.dataset.category;
       const keyInfo = lead.dataset.keyinfo || '';
 
-      // ✅ DIRECT GMAIL COMPOSE LINKS (Chrome-friendly)
       const subject = `Quick chat about your ${category.toLowerCase()} opportunity?`;
       const body = `Hi ${name},
 
@@ -72,7 +71,7 @@ Your Name
 ---
 Lead added via AI Customer Manager`;
 
-      // Gmail compose URL - opens PERFECTLY in Chrome tabs
+      // Gmail compose URL
       const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
       // Staggered opening (prevents browser blocking)

@@ -5,7 +5,7 @@ import os
 import re
 import matplotlib
 
-matplotlib.use('Agg')  # Fix tkinter error - at top!
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -75,18 +75,16 @@ def get_category(score):
 
 
 def extract_key_info(raw_input):
-    """Capture business intel - FIXED buy intent"""
+
     info_parts = []
     raw_lower = raw_input.lower()
 
-    # 1. TITLES (unchanged)
     exec_titles = ['cto', 'cfo', 'cio', 'vp', 'director', 'head']
     for title in exec_titles:
         if title in raw_lower:
             info_parts.append(title.upper())
             break
 
-    # 2. BUDGET (unchanged)
     euro_match = re.search(r'(\d+(?:,\d+)?[kKm]?)€?', raw_input, re.I)
     dollar_match = re.search(r'\$\s*(\d+(?:,\d+)?[kKm]?)', raw_input, re.I)
     standalone_budget = re.search(r'\b(\d+(?:,\d+)?[kKm]?)\s*budget\b', raw_input, re.I)
@@ -98,7 +96,6 @@ def extract_key_info(raw_input):
     elif standalone_budget:
         info_parts.append(f"{standalone_budget.group(1)}k budget")
 
-    # 3. ✅ FIXED: BUY INTENT (more phrases)
     buy_phrases = ['wants to buy', 'ready to buy', 'need now', 'urgent', 'approved', 'looking for',
                    'interested in']
     negative_intent = any(
@@ -110,7 +107,6 @@ def extract_key_info(raw_input):
                 info_parts.append("HIGH INTENT")
                 break
 
-    # 4. TIMELINE (unchanged)
     year_match = re.search(r'\b(20[2-9]\d)\b', raw_input, re.I)
     if year_match:
         info_parts.append(f"{year_match.group(1)} timeline")
@@ -246,7 +242,6 @@ def index():
 
     pie_chart = generate_pie_chart(customers)
 
-    # ✅ BULK EMAIL SUPPORT - Count Gold/Platinum leads
     gold_platinum_count = len(
         [c for c in customers.values() if c['category'] in ['Gold', 'Platinum']])
 
